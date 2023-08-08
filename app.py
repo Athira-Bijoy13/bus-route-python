@@ -14,21 +14,22 @@ def helloworld():
 def combination():
    
    matrix=request.json['data']
-
+   busSize=request.json['size']
    size=len(matrix)
    array=[i for i in range(1,size)]
-   
-   combs = combinations(array, 2)
+   arraysize=int(len(array)/busSize)
+   combs = combinations(array, arraysize)
     
-    # Divide each combination into groups of size 2
+   
    groups = []
    for comb in combs:
-        next_comb=combinations(tuple(set(array) - set(comb)),1)
+        l=len(array)-len(comb)
+        next_comb=combinations(tuple(set(array) - set(comb)),l)
         for x in next_comb:
          groups.append([comb,x])
     
-   for grp in groups:
-        print(grp)
+   # for grp in groups:
+   #      print(grp)
    min_cost=99999
    for grp in groups:
       stop_array=[]
