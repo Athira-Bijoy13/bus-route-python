@@ -2,6 +2,26 @@
 
 import random
 
+def calculate_fitness(solution):
+    total_distance = 0
+    total_capacity_violation = 0
+    # Iterate over each vehicle's route in the solution
+    for vehicle_route in solution:
+        route_distance = calculate_route_distance(vehicle_route)
+        total_distance += route_distance
+        
+        # Check and penalize if capacity constraint is violated
+        route_capacity = calculate_route_capacity(vehicle_route)
+        if route_capacity > MAX_CAPACITY:
+            # Penalize by adding a high value
+            total_capacity_violation += (route_capacity - MAX_CAPACITY) * PENALTY_FACTOR
+    
+    # Combine both factors (distance and capacity violation) to get fitness
+    fitness = total_distance + total_capacity_violation
+    return fitness
+
+
+
 def main():
 #      data = [
 #         # fmt: off
@@ -82,6 +102,7 @@ def main():
      print("capacity for each bus::",total_capacity)
      print("total distance travelled for each bus route::",total_dist)
      print("total distance travelled of all buses::",sum)
+  
          
 
                     
