@@ -44,6 +44,7 @@ def generate_random_solution(num_nodes, num_vehicles, vehicle_capacity, demands)
 
 def calculate_route_distance(vehicle_route,data):
     distance=0
+  
     for i in range(1,len(vehicle_route)):
         x=vehicle_route[i-1]
         y=vehicle_route[i]
@@ -178,7 +179,7 @@ def main():
     # initial_population=[[[0, 2, 3, 1, 0], [0, 7, 9, 0], [0, 4, 0], [0, 8, 6, 0]]]
     # depth=len(initial_population)
     min_score=1e9
-    for a in range(1,100):
+    for a in range(1,1000):
        
         fitness_scores=[]
         bus_route_array=[]
@@ -234,7 +235,45 @@ def main():
                 new_gen.append(result)
             # print(set_of_parents)
         # print(len(new_gen),len(initial_population))
-        initial_population=new_gen
+        new_generation=[]
+        for data1 in new_gen:
+            cut_point=random.sample(range(0,no_of_nodes-1),2)
+            cut_point.sort()
+            array=[]
+            
+            for bus in data1:
+                for stop in bus:
+                    if stop!=0:
+                        array.append(stop)
+            # print(array,cut_point)
+            sub_array=array[cut_point[0]:cut_point[1]]
+           
+            random.shuffle(sub_array)
+            i=cut_point[0]
+            j=0
+            
+            while i<cut_point[1] and j<len(sub_array):
+                array[i]=sub_array[j]
+                j=j+1
+                i=i+1
+           
+            ind=0
+            new_routes=[]
+          
+            for x in range(0,len(data1)):
+                new_bus_route=[0]
+                y=0
+                while y<len(data1[x])-2:
+                    new_bus_route.append(array[ind])
+                    ind=ind+1
+                    y=y+1
+                new_bus_route.append(0)
+                new_routes.append(new_bus_route)
+             
+           
+            new_generation.append(new_routes)
+            
+        initial_population=new_generation
         selected_parents=[]
    
         # print(initial_population,'cross')
@@ -257,13 +296,19 @@ def main():
         #     final_cost.append(total_route_capacity)
         # print("total distance of population",final_dist)
 
-
+    dist_array=[]
+    for route in best_route:
+        dist=calculate_route_distance(route,data)
+        dist_array.append(dist)
 
     stop = timeit.default_timer()
     elapsed_time = stop - start
     elapsed_time_str = "{:.8f}".format(elapsed_time)
-    print("final route",best_route)
-    print("min distance",min_score)
+    print("\n\tGENETIC ALGORITHM\n")
+    print("Optimal bus route::",best_route)
+    print("Capacity for each bus::",bus_capacity)
+    print("Total distance travelled for each bus route::",dist_array)
+    print("Total distance travelled of all buses::",min_score)
     print("Execution Time:", elapsed_time_str, "seconds\n")
 
 

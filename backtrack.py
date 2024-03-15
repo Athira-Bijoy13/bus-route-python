@@ -10,10 +10,13 @@ def calculate_distance(route, distance_matrix):
 def is_feasible(route, demand, capacity):
     return sum(demand[node] for node in route) <= capacity
 
-def backtracking_vrp_util(graph, current_solution, remaining_nodes, demand, capacity, solutions, distance_matrix):
+def backtracking_vrp_util(graph, current_solution, remaining_nodes, demand, capacity, solutions, distance_matrix, min_distance):
     total_distance = sum(calculate_distance(route, distance_matrix) for route in current_solution)
     sorted_solution = tuple(tuple(sorted(route)) for route in current_solution)
     solutions.append((sorted_solution, total_distance))
+
+    if total_distance > min_distance:
+        return
 
     if not remaining_nodes:
         return
@@ -22,7 +25,7 @@ def backtracking_vrp_util(graph, current_solution, remaining_nodes, demand, capa
     for i in range(len(current_solution)):
         current_solution[i].append(current_node)
         if is_feasible(current_solution[i], demand, capacity):
-            backtracking_vrp_util(graph, current_solution, remaining_nodes[1:], demand, capacity, solutions, distance_matrix)
+            backtracking_vrp_util(graph, current_solution, remaining_nodes[1:], demand, capacity, solutions, distance_matrix, min_distance)
         current_solution[i].pop()
 
 def backtracking_vrp(graph, demand, capacity, distance_matrix):
@@ -33,7 +36,9 @@ def backtracking_vrp(graph, demand, capacity, distance_matrix):
     initial_solution = [[0] for _ in range(4)]  # Three routes for three buses
     solutions = []
 
-    backtracking_vrp_util(graph, initial_solution, remaining_nodes, demand, capacity, solutions, distance_matrix)
+    min_distance = float('inf')  # Initialize min_distance as positive infinity
+
+    backtracking_vrp_util(graph, initial_solution, remaining_nodes, demand, capacity, solutions, distance_matrix, min_distance)
 
     # Filter out duplicate solutions
     unique_solutions = set(solutions)
@@ -76,9 +81,12 @@ for solution, distance in vrp_solutions:
     modified_solution = [tuple(list(route) + [0]) for route in solution]
     modified_solutions.append((modified_solution, distance))
 
-min_distance = min(distance for _, distance in modified_solutions)
+min_distance = float('inf')  # Initialize min_distance as positive infinity
 
 # Display only the solutions with the minimum distance
+for solution, distance in modified_solutions:
+    min_distance = min(min_distance, distance)
+
 min_distance_solutions = [(solution, distance) for solution, distance in modified_solutions if distance == min_distance]
 stop = timeit.default_timer()
 elapsed_time = stop - start
