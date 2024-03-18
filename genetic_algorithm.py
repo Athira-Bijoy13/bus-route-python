@@ -1,7 +1,7 @@
 
 import random
-from cross import brbax_crossover_with_capacity
 
+from crossover import crossover_function
 import timeit
 start = timeit.default_timer()
 class population:
@@ -11,34 +11,36 @@ class population:
 
 def generate_random_solution(num_nodes, num_vehicles, vehicle_capacity, demands):
     
-    depot = 0  
+   
     remaining_capacity = [vehicle_capacity] * num_vehicles
     solution = [[] for _ in range(num_vehicles)]
-    unassigned_nodes = list(range(1, num_nodes))  
-    vehicle_index=list(range(0,num_vehicles))
+    unassigned_nodes = list(range(1, num_nodes))  # Exclude the depot
     for i in range(num_vehicles):
-        solution[i].append(0)
-    while len(unassigned_nodes) >0:
-        current_vehicle = random.choice(vehicle_index)
-        # current_node = depot  
-
+        solution[i].append(0)  # Start each route at the depot (node 0)
+    cnt=0
+    while unassigned_nodes:
+        # print(solution)
+        current_vehicle = random.randint(0, num_vehicles - 1)
         promising_nodes = [node for node in unassigned_nodes if demands[node] <= remaining_capacity[current_vehicle]]
-        # print(promising_nodes,"hi",unassigned_nodes,current_vehicle,vehicle_index)
         if not promising_nodes:
-            vehicle_index.remove(current_vehicle)
+            cnt=cnt+1
+            if cnt>10:
+                # print("cnt",cnt)
+                break
             continue
-        vehicle_index=list(range(0,num_vehicles))
+        cnt=0
+        # print("P==",promising_nodes)
         selected_node = random.choice(promising_nodes)
         solution[current_vehicle].append(selected_node)
-
-       
         remaining_capacity[current_vehicle] -= demands[selected_node]
         unassigned_nodes.remove(selected_node)
-   
-    # print(solution,unassigned_nodes)
-    for i in range(num_vehicles):
-        solution[i].append(0)
+    if cnt>10:
+        solution=generate_random_solution(num_nodes, num_vehicles, vehicle_capacity, demands)
+    else:
+        for i in range(num_vehicles):
+            solution[i].append(0)  # End each route at the depot (node 0)
     return solution
+
 
 
 
@@ -71,7 +73,7 @@ def calculate_fitness(solution,data,stop_capacity,buses,bus_capacity):
         # print(route_capacity)
         if route_capacity > bus_capacity:
            
-            total_capacity_violation += (route_capacity - bus_capacity) * 9
+            total_capacity_violation += (route_capacity - bus_capacity) * 999
     
     # print("total",total_capacity_violation,total_distance)
     fitness = total_distance + total_capacity_violation
@@ -81,15 +83,26 @@ def calculate_fitness(solution,data,stop_capacity,buses,bus_capacity):
 def initialize_population(population_size, no_of_nodes,buses,stop_capacity, max_capacity):
     population = []
     # print("HII")
-    for a in range(population_size):
+    min_stops=int(no_of_nodes/buses)
+  
+    a=0
+    while a<population_size:
         # Generate random routes for each vehicle
         routes = generate_random_solution(no_of_nodes,buses,max_capacity,stop_capacity)
-            
-        population.append(routes)
+        flag=0
+        for route in routes:
+            if len(route)-2<min_stops:
+                flag=1
+               
+                break
+       
+        if flag==0:
+            population.append(routes)
+            a=a+1
         # routes=a
         # print(population)
 
-    
+    # print("pp",len(population))
     return population
 
 
@@ -155,7 +168,7 @@ def main():
         [5,6,5,4,3,1,2,0,5,3],
         [4,8,4,3,8,5,6,5,0,2],
         [3,2,6,5,4,3,7,3,2,0]]
-    # data1= [
+    # data= [
     # [0, 20, 15, 30, 25, 10, 35, 40, 45, 50],
     # [20, 0, 25, 35, 15, 30, 20, 40, 35, 45],
     # [15, 25, 0, 30, 20, 10, 35, 25, 40, 30],
@@ -178,6 +191,7 @@ def main():
     initial_population=initialize_population(10, no_of_nodes,buses,stop_capacity, bus_capacity)
     # initial_population=[[[0, 2, 3, 1, 0], [0, 7, 9, 0], [0, 4, 0], [0, 8, 6, 0]]]
     # depth=len(initial_population)
+    # print(initial_population)
     min_score=1e9
     for a in range(1,1000):
        
@@ -200,7 +214,7 @@ def main():
         
         # selected_parents=roulette_wheel_selection_with_capacity(initial_population,fitness_scores, bus_capacity,stop_capacity)
         # selected_parents=roulette_wheel_selection1(initial_population,probabilities)
-        # print(selected_parents)
+        # print(initial_population)
         new_gen=[]
         # print(len(selected_parents),len(initial_population),len(new_gen))
      
@@ -230,7 +244,8 @@ def main():
                 set_of_parents.append(parent_index)
                 parent1=selected_parents[parent_index[0]].route
                 parent2=selected_parents[parent_index[1]].route
-                result=brbax_crossover_with_capacity(parent1,parent2,bus_capacity,stop_capacity)
+                # result=brbax_crossover_with_capacity(parent1,parent2,bus_capacity,stop_capacity)
+                result=crossover_function(parent1,parent2,no_of_nodes)
                 # print(result,"crossover")
                 new_gen.append(result)
             # print(set_of_parents)
@@ -297,9 +312,12 @@ def main():
         # print("total distance of population",final_dist)
 
     dist_array=[]
+    capacity_array=[]
     for route in best_route:
         dist=calculate_route_distance(route,data)
+        capacity=calculate_route_capacity(route,stop_capacity)
         dist_array.append(dist)
+        capacity_array.append(capacity)
 
     stop = timeit.default_timer()
     elapsed_time = stop - start
@@ -307,6 +325,7 @@ def main():
     print("\n\tGENETIC ALGORITHM\n")
     print("Optimal bus route::",best_route)
     print("Capacity for each bus::",bus_capacity)
+    print("Capacity for each bus::",capacity_array)
     print("Total distance travelled for each bus route::",dist_array)
     print("Total distance travelled of all buses::",min_score)
     print("Execution Time:", elapsed_time_str, "seconds\n")
