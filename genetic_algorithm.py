@@ -208,8 +208,8 @@ def main():
                 best_route=initial_sol
         # print("best route curr",best_route,min_score)
         # print(fitness_scores,initial_population)
-        probabilities = [score / sum(fitness_scores) for score in fitness_scores]
-        selected_parents=sorted(bus_route_array,key=lambda x:x.dist)
+        # probabilities = [score / sum(fitness_scores) for score in fitness_scores]
+        selected_parents=bus_route_array
         # bus_route_array=[]
         
         # selected_parents=roulette_wheel_selection_with_capacity(initial_population,fitness_scores, bus_capacity,stop_capacity)
@@ -237,19 +237,48 @@ def main():
 
         
         while len(new_gen)<len(initial_population):
-            parent_index=random.sample(range(0,len(selected_parents)-1),2)
-            # print(parent_index)
+            # parent_index=random.sample(range(0,len(selected_parents)-1),2)
+            # # print(parent_index)
+
+
+            # performing 4 way tournament selection process for parent selection
+            #for parent1
+            fitness_min=1e9
+            selected_indices_parent1=random.sample(range(0,len(selected_parents)-1),4)
             
-            if parent_index not in set_of_parents:
-                set_of_parents.append(parent_index)
-                parent1=selected_parents[parent_index[0]].route
-                parent2=selected_parents[parent_index[1]].route
+            for index in selected_indices_parent1:
+                
+                if selected_parents[index].dist<fitness_min:            #selecting parent with best fitness value(min)  
+                    fitness_min=selected_parents[index].dist
+                    parent1=selected_parents[index]
+
+
+          
+
+            selected_parents.remove(parent1)
+           
+            #for parent2
+            selected_indices_parent2=random.sample(range(0,len(selected_parents)-1),4)
+            fitness_min=1e9
+            
+            for index in selected_indices_parent2:
+                if selected_parents[index].dist<fitness_min:                #selecting parent with best fitness value(min)
+                    fitness_min=selected_parents[index].dist
+                    parent2=selected_parents[index]
+            selected_parents.append(parent1)
+            
+            parents=[parent1,parent2]
+           
+            if parents not in set_of_parents:
+                set_of_parents.append(parents)
+                parent1=parent1.route
+                parent2=parent2.route
                 # result=brbax_crossover_with_capacity(parent1,parent2,bus_capacity,stop_capacity)
                 result=crossover_function(parent1,parent2,no_of_nodes)
                 # print(result,"crossover")
                 new_gen.append(result)
             # print(set_of_parents)
-        # print(len(new_gen),len(initial_population))
+       
         new_generation=[]
         for data1 in new_gen:
             cut_point=random.sample(range(0,no_of_nodes-1),2)
