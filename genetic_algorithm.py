@@ -3,7 +3,7 @@ import random
 
 from crossover import crossover_function
 import timeit
-start = timeit.default_timer()
+
 class population:
     def __init__(self, route,dist):
         self.route=route
@@ -185,9 +185,12 @@ def main():
     stop_capacity=[0, 4, 5, 4, 7, 7,6,4,5,5]
                 # 0, 1, 2, 3, 4, 5,6, 7 8,9
     bus_capacity=15
+    res=genetic_algorithm(data,no_of_nodes,buses,stop_capacity,bus_capacity)
  
     # initial_sol=generate_random_solution(no_of_nodes,buses,10,stop_capacity)
     # print(initial_sol)
+def genetic_algorithm(data,no_of_nodes, buses,stop_capacity,bus_capacity):
+    start = timeit.default_timer()
     initial_population=initialize_population(10, no_of_nodes,buses,stop_capacity, bus_capacity)
     # initial_population=[[[0, 2, 3, 1, 0], [0, 7, 9, 0], [0, 4, 0], [0, 8, 6, 0]]]
     # depth=len(initial_population)
@@ -206,35 +209,15 @@ def main():
             if fitness<min_score:
                 min_score=fitness
                 best_route=initial_sol
-        # print("best route curr",best_route,min_score)
-        # print(fitness_scores,initial_population)
-        # probabilities = [score / sum(fitness_scores) for score in fitness_scores]
+     
         selected_parents=bus_route_array
         # bus_route_array=[]
-        
-        # selected_parents=roulette_wheel_selection_with_capacity(initial_population,fitness_scores, bus_capacity,stop_capacity)
-        # selected_parents=roulette_wheel_selection1(initial_population,probabilities)
-        # print(initial_population)
+      
         new_gen=[]
         # print(len(selected_parents),len(initial_population),len(new_gen))
      
         set_of_parents=[]
-        # i=0
-        # j=0
-        # print(i,j)
-        # while i < len(selected_parents):
-        #     j = i + 1  # Start j from i + 1 to avoid comparing the same pairs and duplicate operations
-        #     while j < len(selected_parents):
-        #         parent1 = selected_parents[i].route
-        #         parent2 = selected_parents[j].route
-        #         result = brbax_crossover_with_capacity(parent1, parent2, bus_capacity, stop_capacity)
-        #         print("parent", parent1, parent2, result, "crossover", i, j)
-        #         new_gen.append(result)
-        #         j = j + 1
-            
-        #     i = i + 1
-        # initial_population=new_gen
-
+       
         
         while len(new_gen)<len(initial_population):
             # parent_index=random.sample(range(0,len(selected_parents)-1),2)
@@ -320,26 +303,7 @@ def main():
         initial_population=new_generation
         selected_parents=[]
    
-        # print(initial_population,'cross')
-        # final_dist=[]
-        # final_cost=[]
     
-        # min_dist=9999
-        # for routes in new_gen:
-        #     total_route_dist=0
-        #     total_route_capacity=0
-        #     for route in routes:
-        #         dist=calculate_route_distance(route,data)
-        #         total_route_dist+=dist
-        #         cost_bus=calculate_route_capacity(route,stop_capacity)
-        #         total_route_capacity+=cost_bus
-        #     if total_route_dist<min_dist:
-        #         min_route=routes
-        #         min_dist=total_route_dist
-        #     final_dist.append(total_route_dist)
-        #     final_cost.append(total_route_capacity)
-        # print("total distance of population",final_dist)
-
     dist_array=[]
     capacity_array=[]
     for route in best_route:
@@ -352,13 +316,26 @@ def main():
     elapsed_time = stop - start
     elapsed_time_str = "{:.8f}".format(elapsed_time)
     print("\n\tGENETIC ALGORITHM\n")
+    print("INPUT DATA ::")
+    print("Number of stops:: ",no_of_nodes)
+    print("Number of bus::",buses)
+    print("Maximum capacity of each bus::",bus_capacity)
+    print("Distance Matrix ::")
+    for row in data:
+        print(row)
+    
+    print("Number of students at each stop::", stop_capacity)
+    print("")
+    print("OUTPUT ")
+
+    print("\n\tGENETIC ALGORITHM\n")
     print("Optimal bus route::",best_route)
-    print("Capacity for each bus::",bus_capacity)
-    print("Capacity for each bus::",capacity_array)
+    print("Capacity obtained for each bus::",capacity_array)
     print("Total distance travelled for each bus route::",dist_array)
     print("Total distance travelled of all buses::",min_score)
     print("Execution Time:", elapsed_time_str, "seconds\n")
-
+    
+    return best_route,capacity_array,dist_array,min_score,elapsed_time_str
 
 
 if __name__ == "__main__":

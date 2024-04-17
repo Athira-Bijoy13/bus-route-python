@@ -76,6 +76,15 @@ def main():
     # Instantiate the data problem.
     data = create_data_model()
 
+
+def ortool_algo(distance_matrix,no_of_nodes, buses,stop_capacity,bus_capacity):
+    data={}
+    data["distance_matrix"]=distance_matrix
+    data["num_vehicles"]=buses
+    data["demands"]=stop_capacity
+    data["depot"]=0
+    data["vehicle_capacities"]=[bus_capacity]*buses
+
     # Create the routing index manager.
     manager = pywrapcp.RoutingIndexManager(
         len(data["distance_matrix"]), data["num_vehicles"], data["depot"]

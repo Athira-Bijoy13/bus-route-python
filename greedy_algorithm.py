@@ -1,6 +1,6 @@
 import random
 import timeit
-start = timeit.default_timer()
+
 
 def main():
      data=[[0, 5, 8, 6, 7, 3,2,5,4,3],  
@@ -14,9 +14,13 @@ def main():
         [4,8,4,3,8,5,6,5,0,2],
         [3,2,6,5,4,3,7,3,2,0]]
      buses=4
+     no_of_nodes=10
+     bus_capacity=15
      stop_capacity=[0, 4, 5, 4, 7, 7,6,4,5,5]
+     genetic_algo(data,no_of_nodes,buses,stop_capacity,bus_capacity)
                   # 0, 1, 2, 3, 4, 5
-    
+def genetic_algo(data,no_of_nodes,buses,stop_capacity,bus_capacity):
+     start = timeit.default_timer()
      visited=[0]
      capacity=0
      x=0
@@ -33,7 +37,7 @@ def main():
                     min_value=data[x][y]
                     index=y
           
-          if capacity+stop_capacity[index]<=15:
+          if capacity+stop_capacity[index]<=bus_capacity:
                 dist=dist+data[x][index]
                 x=index
                 
@@ -65,10 +69,12 @@ def main():
      elapsed_time_str = "{:.8f}".format(elapsed_time)
      print("\n\tGREEDY ALGORITHM\n")
      print("Optimal bus route::",initial_sol)
-     print("Capacity for each bus::",total_capacity)
+     print("Capacity obtained for each bus::",total_capacity)
      print("Total distance travelled for each bus route::",total_dist)
      print("Total distance travelled of all buses::",sum)
      print("Execution Time:", elapsed_time_str, "seconds\n")
+
+     return initial_sol,total_capacity,total_dist,sum,elapsed_time_str
          
 
 if __name__ == "__main__":
