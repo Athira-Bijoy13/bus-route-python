@@ -1,4 +1,4 @@
-from flask import Flask,request
+from flask import Flask,request,render_template
 import genetic_algorithm
 app=Flask(__name__)
 
