@@ -18,25 +18,34 @@ def generate_random_solution(num_nodes, num_vehicles, vehicle_capacity, demands)
     for i in range(num_vehicles):
         solution[i].append(0)  # Start each route at the depot (node 0)
     cnt=0
-    while unassigned_nodes:
-        # print(solution)
+    f=1
+    while unassigned_nodes and f<num_nodes:
+        # print(num_vehicles-1,solution,f)
         current_vehicle = random.randint(0, num_vehicles - 1)
+        if remaining_capacity[current_vehicle] ==0:
+            continue
         promising_nodes = [node for node in unassigned_nodes if demands[node] <= remaining_capacity[current_vehicle]]
+        # print(cnt,promising_nodes,remaining_capacity[current_vehicle],current_vehicle,unassigned_nodes)
         if not promising_nodes:
             cnt=cnt+1
             if cnt>10:
-                # print("cnt",cnt)
-                break
+              break
             continue
+
         cnt=0
-        # print("P==",promising_nodes)
+        # print("P==",demands[promising_nodes[0]])
         selected_node = random.choice(promising_nodes)
+        # print(selected_node)
         solution[current_vehicle].append(selected_node)
+        f+=1
+        # print(solution,"fff",f)
         remaining_capacity[current_vehicle] -= demands[selected_node]
         unassigned_nodes.remove(selected_node)
     if cnt>10:
+        # print("ree")
         solution=generate_random_solution(num_nodes, num_vehicles, vehicle_capacity, demands)
     else:
+        # print("ok gen")
         for i in range(num_vehicles):
             solution[i].append(0)  # End each route at the depot (node 0)
     return solution
@@ -73,7 +82,7 @@ def calculate_fitness(solution,data,stop_capacity,buses,bus_capacity):
         # print(route_capacity)
         if route_capacity > bus_capacity:
            
-            total_capacity_violation += (route_capacity - bus_capacity) * 999
+            total_capacity_violation += (route_capacity - bus_capacity) * 100000
     
     # print("total",total_capacity_violation,total_distance)
     fitness = total_distance + total_capacity_violation
@@ -83,7 +92,7 @@ def calculate_fitness(solution,data,stop_capacity,buses,bus_capacity):
 def initialize_population(population_size, no_of_nodes,buses,stop_capacity, max_capacity):
     population = []
     # print("HII")
-    min_stops=int(no_of_nodes/buses)
+    min_stops=int(no_of_nodes/buses)-1
   
     a=0
     while a<population_size:
@@ -97,8 +106,10 @@ def initialize_population(population_size, no_of_nodes,buses,stop_capacity, max_
                 break
        
         if flag==0:
+            # print("added")
             population.append(routes)
             a=a+1
+        # print("next")
         # routes=a
         # print(population)
 
@@ -189,14 +200,17 @@ def main():
  
     # initial_sol=generate_random_solution(no_of_nodes,buses,10,stop_capacity)
     # print(initial_sol)
-def genetic_algorithm(data,no_of_nodes, buses,stop_capacity,bus_capacity):
+def genetic_algorithm(data,no_of_nodes, buses,stop_capacity,bus_capacity,no_generations):
     start = timeit.default_timer()
     initial_population=initialize_population(10, no_of_nodes,buses,stop_capacity, bus_capacity)
     # initial_population=[[[0, 2, 3, 1, 0], [0, 7, 9, 0], [0, 4, 0], [0, 8, 6, 0]]]
     # depth=len(initial_population)
     # print(initial_population)
+    # no_generations=150*no_of_nodes
+    # print(no_generations)
     min_score=1e9
-    for a in range(1,1000):
+    best_route=[]
+    for a in range(1,no_generations):
        
         fitness_scores=[]
         bus_route_array=[]
@@ -315,23 +329,23 @@ def genetic_algorithm(data,no_of_nodes, buses,stop_capacity,bus_capacity):
     stop = timeit.default_timer()
     elapsed_time = stop - start
     elapsed_time_str = "{:.8f}".format(elapsed_time)
-    print("\n\tGENETIC ALGORITHM\n")
-    print("INPUT DATA ::")
-    print("Number of stops:: ",no_of_nodes)
-    print("Number of bus::",buses)
-    print("Maximum capacity of each bus::",bus_capacity)
-    print("Distance Matrix ::")
-    for row in data:
-        print(row)
+    # print("\n\tGENETIC ALGORITHM\n")
+    # print("INPUT DATA ::")
+    # print("Number of stops:: ",no_of_nodes)
+    # # print("Number of bus::",buses)
+    # # print("Maximum capacity of each bus::",bus_capacity)
+    # print("Distance Matrix ::")
+    # for row in data:
+        # print(row)
     
-    print("Number of students at each stop::", stop_capacity)
-    print("")
-    print("OUTPUT ")
+    # print("Number of students at each stop::", stop_capacity)
+    # print("")
+    # print("OUTPUT ")
 
     print("\n\tGENETIC ALGORITHM\n")
     print("Optimal bus route::",best_route)
-    print("Capacity obtained for each bus::",capacity_array)
-    print("Total distance travelled for each bus route::",dist_array)
+    # print("Capacity obtained for each bus::",capacity_array)
+    # print("Total distance travelled for each bus route::",dist_array)
     print("Total distance travelled of all buses::",min_score)
     print("Execution Time:", elapsed_time_str, "seconds\n")
     

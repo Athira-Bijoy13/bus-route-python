@@ -3,6 +3,7 @@ import genetic_algorithm
 import ortools_algorithm
 import backtrack_algorithm
 import matplotlib.pyplot as plt
+import math
 from scipy.stats import ttest_ind
 import greedy_algorithm
 def create_distance_matrix(num_locations,max_distance):
@@ -20,39 +21,61 @@ greedy_dist=[]
 exec_time_backtrack=[]
 backtrack_dist=[]
 
-for i in range(1,10):
-    num_locations=np.random.randint(10,23)
-
-    distance_matrix=create_distance_matrix(num_locations,30)
-    no_buses=int(num_locations/3)
-    no_of_students=np.random.randint(3,10,size=num_locations)
-    no_of_students[0]=0
-    total_students=sum(no_of_students)
-    bus_capacity=int((total_students/no_buses)/4)*4+6                           
-    # print(len(distance_matrix),no_buses,no_of_students,total_students,bus_capacity)
-    print("INPUT DATA ::")
-    print("Number of stops:: ",num_locations)
-    print("Number of bus::",no_buses)
-    print("Maximum capacity of each bus::",bus_capacity)
-    print("Distance Matrix ::")
-    for row in distance_matrix:
-        print(row)
+for i in range(8,22):
+    num_locations=i
+    genetic_dist_mean=0
+    greedy_dist_mean=0
+    genetic_exec_mean=0
+    greedy_exec_mean=0
+    backtrack_dist_mean=0
+    backtrack_exec_mean=0
+    bus_capacity=20
+    for j in range(1,6) :
+        distance_matrix=create_distance_matrix(num_locations,30)
+       
+        no_of_students=np.random.randint(3,10,size=num_locations)
+        no_of_students[0]=0
+        total_students=sum(no_of_students)
+        no_buses=math.ceil(total_students/bus_capacity)
+         
+        no_of_generations=150*num_locations                       
+        # print(len(distance_matrix),no_buses,no_of_students,total_students,bus_capacity)
+        # print("INPUT DATA ::")
+        # print("Number of stops:: ",num_locations)
+        # print("Number of bus::",no_buses)
+        # print("Maximum capacity of each bus::",bus_capacity)
+        # print("Distance Matrix ::")
+        # for row in distance_matrix:
+        #     print(row)
+        
+        # print("Number of students at each stop::", no_of_students)
+        # print("")
+        # print("OUTPUT ")
+        genetic_result=genetic_algorithm.genetic_algorithm(distance_matrix,num_locations,no_buses,no_of_students,bus_capacity,no_of_generations)
+        # ortools_algorithm.ortool_algo(distance_matrix,num_locations, no_buses,no_of_students,bus_capacity)
+        greedy_result=greedy_algorithm.greedy_algo(distance_matrix,num_locations,no_buses,no_of_students,bus_capacity)
+        backtrack_result=backtrack_algorithm.backtrack_algo(distance_matrix,num_locations,no_buses,no_of_students,bus_capacity)
+        # print(genetic_result[3],genetic_result[4])
+        genetic_exec_mean+=float(genetic_result[4])
+        genetic_dist_mean+=float(genetic_result[3])
+        greedy_exec_mean+=float(greedy_result[4])
+        greedy_dist_mean+=float(greedy_result[3])
+        backtrack_dist_mean+=float(backtrack_result[3])
+        backtrack_exec_mean+=float(backtrack_result[4])
     
-    print("Number of students at each stop::", no_of_students)
-    print("")
-    print("OUTPUT ")
-    genetic_result=genetic_algorithm.genetic_algorithm(distance_matrix,num_locations,no_buses,no_of_students,bus_capacity)
-    # ortools_algorithm.ortool_algo(distance_matrix,num_locations, no_buses,no_of_students,bus_capacity)
-    greedy_result=greedy_algorithm.genetic_algo(distance_matrix,num_locations,no_buses,no_of_students,bus_capacity)
-    # backtrack_result=backtrack_algorithm.backtrack_algo(distance_matrix,num_locations,no_buses,no_of_students,bus_capacity)
     input_size.append(num_locations)
-    exec_time_genetic.append(genetic_result[4])
-    genetic_dist.append(genetic_result[3])
-    exec_time_greedy.append(greedy_result[4])
-    greedy_dist.append(greedy_result[3])
-    # exec_time_backtrack.append(backtrack_result[4])
-    # backtrack_dist.append(backtrack_result[3])
-    
+    # greedy_exec=sum(greedy_exec_mean)/5
+    # greedy_dist=sum(greedy_dist_mean)/5
+    # genetic_exec=sum(genetic_exec_mean)/5
+    # genetic_dist=sum(genetic_dist_mean)/5
+    exec_time_genetic.append(float((genetic_exec_mean)/5))
+    genetic_dist.append(float((genetic_dist_mean)/5))
+    exec_time_greedy.append(float((greedy_exec_mean)/5))
+    greedy_dist.append(float((greedy_dist_mean)/5))
+    exec_time_backtrack.append(float(backtrack_exec_mean/5))
+    backtrack_dist.append(float(backtrack_dist_mean/5))
+
+
 
 
 
@@ -72,6 +95,8 @@ plt.plot(input_size,genetic_dist,  marker='o', label='Genetic Algorithm')
 # Plot execution times for Greedy Algorithm
 plt.plot(input_size,greedy_dist,  marker='o', label='Greedy Algorithm')
 
+plt.plot(input_size,backtrack_dist,  marker='o', label='Backtracking Algorithm')
+
 
 plt.xlabel('Input size')
 plt.ylabel('Minimum Distance')
@@ -89,7 +114,7 @@ plt.plot(input_size,exec_time_genetic,  marker='o', label='Genetic Algorithm')
 # Plot execution times for Greedy Algorithm
 plt.plot(input_size,exec_time_greedy,  marker='o', label='Greedy Algorithm')
 
-
+plt.plot(input_size,exec_time_backtrack,  marker='o', label='Backtracking Algorithm')
 plt.xlabel('Input size')
 plt.ylabel('Execution Time')
 

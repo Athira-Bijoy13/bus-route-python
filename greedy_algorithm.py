@@ -1,6 +1,6 @@
 import random
 import timeit
-
+import math
 
 def main():
      data=[[0, 5, 8, 6, 7, 3,2,5,4,3],  
@@ -17,64 +17,57 @@ def main():
      no_of_nodes=10
      bus_capacity=15
      stop_capacity=[0, 4, 5, 4, 7, 7,6,4,5,5]
-     genetic_algo(data,no_of_nodes,buses,stop_capacity,bus_capacity)
+     greedy_algo(data,no_of_nodes,buses,stop_capacity,bus_capacity)
                   # 0, 1, 2, 3, 4, 5
-def genetic_algo(data,no_of_nodes,buses,stop_capacity,bus_capacity):
+def greedy_algo(data,no_of_nodes,buses,stop_capacity,bus_capacity):
      start = timeit.default_timer()
-     visited=[0]
-     capacity=0
-     x=0
-     total_capacity=[]
-     initial_sol=[]
-     vect=[0]
-     total_dist=[]
-     dist=0
-     while len(visited)<len(data):
-          
-          min_value=999
-          for y in range(0,len(data)):
-               if y not in visited and data[x][y]<min_value:
-                    min_value=data[x][y]
-                    index=y
-          
-          if capacity+stop_capacity[index]<=bus_capacity:
-                dist=dist+data[x][index]
-                x=index
-                
-                capacity=capacity+stop_capacity[index]
-                visited.append(index)
-                vect.append(index)
-          else:
-              vect.append(0)
-              initial_sol.append(vect)
-              vect.clear
-              vect=[0]
-              dist=dist+data[x][0]
-              total_dist.append(dist)
-              dist=0
-              total_capacity.append(capacity)
-              capacity=0
-              x=0
-        #   print(vect,visited,capacity,min_value)
-     total_capacity.append(capacity)
-     dist=dist+data[x][0]
-     total_dist.append(dist)
-     vect.append(0)
-     initial_sol.append(vect)
-     sum=0
-     for d in total_dist:
-          sum=sum+d
+     solution = [[] for _ in range(buses)]
+     remaining_capacity = [bus_capacity] * buses
+     unassigned_nodes = list(range(1, no_of_nodes))  # Exclude the depot
+     distance_sol=[0 for _ in range(buses)]
+
+     for i in range(buses):
+        solution[i].append(0) 
+     while unassigned_nodes:
+         for i in range(buses):                                                 
+             nodes=[node for node in unassigned_nodes if stop_capacity[node]<=remaining_capacity[i]]              #no of nodes* no of buses N*B `
+             if len(nodes)>0:
+               distance_array=[{'dist':data[solution[i][-1]][node],'index':node} for node in nodes] 
+               next_node=min(distance_array, key=lambda x:x['dist'])['index']
+               distance_sol[i]+=data[solution[i][-1]][next_node]
+               solution[i].append(next_node)
+               unassigned_nodes.remove(next_node)
+               remaining_capacity[i]-=stop_capacity[next_node]
+               
+     bus_capacities=[bus_capacity-remaining_capacity[i] for i in range(buses)]
+     total_dist=0
+     for i in range(buses):
+         distance_sol[i]+=data[solution[i][-1]][0]
+         solution[i].append(0)
+         remaining_capacity[i]-=stop_capacity[0]
+         total_dist+=distance_sol[i]
+  
+     print(solution,bus_capacities,distance_sol,total_dist)
+
+
+            
+
+
+
+
+
+    
      stop = timeit.default_timer()
      elapsed_time = stop - start
      elapsed_time_str = "{:.8f}".format(elapsed_time)
      print("\n\tGREEDY ALGORITHM\n")
-     print("Optimal bus route::",initial_sol)
-     print("Capacity obtained for each bus::",total_capacity)
-     print("Total distance travelled for each bus route::",total_dist)
-     print("Total distance travelled of all buses::",sum)
+     print("Optimal bus route::",solution)
+     print("Capacity obtained for each bus::",bus_capacities)
+     print("Total distance travelled for each bus route::",distance_array)
+     print("Total distance travelled of all buses::",total_dist)
      print("Execution Time:", elapsed_time_str, "seconds\n")
 
-     return initial_sol,total_capacity,total_dist,sum,elapsed_time_str
+     return solution,bus_capacities,distance_array,total_dist,elapsed_time_str
          
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 import timeit
-start = timeit.default_timer()
+
 
 def calculate_distance(route, distance_matrix):
     total_distance = 0
@@ -83,6 +83,7 @@ def main():
 
 def backtrack_algo(graph_example,no_of_nodes, buses,demand_example,capacity_example):
 
+    start = timeit.default_timer()
     vrp_solutions = backtracking_vrp(graph_example, demand_example, capacity_example, graph_example,buses)
     modified_solutions = []
 
@@ -114,8 +115,8 @@ def backtrack_algo(graph_example,no_of_nodes, buses,demand_example,capacity_exam
 
        
         print("Optimal Bus Route:", solution)
-        print("Capacity obtained of each bus : ",capacity_filled)
-        print("Total distance travelled for each bus route:: ", distance_array)
+        # print("Capacity obtained of each bus : ",capacity_filled)
+        # print("Total distance travelled for each bus route:: ", distance_array)
         print("Total distance travelled of all buses ",distance)
         break
     print("Execution Time:", elapsed_time_str, "seconds\n")
